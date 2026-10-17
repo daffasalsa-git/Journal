@@ -6,17 +6,11 @@ echo   Mengunggah WanderMemories ke GitHub: daffasalsa-git/Journal
 echo ========================================================
 echo.
 
-"C:\Program Files\Git\cmd\git.exe" branch -M main
-"C:\Program Files\Git\cmd\git.exe" push -u origin main
-
-if %errorlevel% neq 0 (
-    echo.
-    echo [Info] Mencoba sinkronisasi jika repository GitHub sudah memiliki README/License...
-    "C:\Program Files\Git\cmd\git.exe" push -u origin main --force
-)
+"C:\Program Files\Git\cmd\git.exe" push origin main
 
 echo.
 echo ========================================================
-echo Selesai! Silakan cek di: https://github.com/daffasalsa-git/Journal
+echo Selesai! Silakan refresh halaman:
+echo https://github.com/daffasalsa-git/Journal
 echo ========================================================
 pause
