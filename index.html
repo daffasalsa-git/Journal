@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="sunny">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WanderMemories — Jejak Kenangan Petualangan (Foto & Video)</title>
+  <meta name="description"
+    content="Aplikasi jurnal memori petualangan visual untuk menyimpan, merayakan, dan memamerkan kenangan perjalanan di Indonesia, Singapura, Eropa, dan berbagai destinasi dunia.">
+  <meta name="keywords"
+    content="travel journal, memory vault, foto jalan-jalan, video perjalanan, peta liburan, petualangan">
+
+  <!-- Google Fonts: Plus Jakarta Sans, Playfair Display, Caveat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Leaflet CSS for Travel Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- Ambient Glowing Atmosphere Background Orbs -->
+  <div class="bg-glow-orb glow-sunny-1"></div>
+  <div class="bg-glow-orb glow-sunny-2"></div>
+  <div class="bg-glow-orb glow-sunny-3"></div>
+
+  <!-- Main Container -->
+  <div class="app-container">
+
+    <!-- Header Section -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand-section">
+          <div class="brand-logo-badge" aria-hidden="true">🎒</div>
+          <div class="brand-titles">
+            <h1>WanderMemories</h1>
+            <p>Jejak Visual & Memori Petualangan Lintas Negeri & Daerah</p>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <!-- Ambient Sound Toggle -->
+          <button id="btn-ambient-sound" class="audio-btn" title="Nyalakan Alunan Musik Relaksasi Perjalanan">
+            <span class="audio-icon">🎵</span>
+            <span class="audio-label">Musik: Hening</span>
+          </button>
+
+          <!-- Theme Selector -->
+          <div class="theme-selector" title="Ganti Nuansa Tampilan">
+            <button class="theme-btn active" data-theme="sunny" onclick="window.app.applyTheme('sunny')"
+              title="Cerah Tropis">☀️ Cerah</button>
+            <button class="theme-btn" data-theme="sunset" onclick="window.app.applyTheme('sunset')"
+              title="Senja Hangat">🌅 Sunset</button>
+            <button class="theme-btn" data-theme="twilight" onclick="window.app.applyTheme('twilight')"
+              title="Malam Twilight">🌌 Malam</button>
+          </div>
+
+          <!-- Showcase / Story Mode Presentation -->
+          <button id="btn-showcase-story" class="btn-secondary" title="Tampilkan Semua Memori dalam Format Layar Penuh">
+            <span>🎞️</span> Tonton Story
+          </button>
+
+          <!-- Add Memory Button -->
+          <button id="btn-add-memory" class="btn-primary" title="Tambah Memori Foto/Video Baru">
+            <span>✨</span> Tambah Memori
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Travel Statistics Banner -->
+      <section class="stats-banner" aria-label="Statistik Petualangan">
+        <div class="stat-item">
+          <div class="stat-icon icon-intl">🌍</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-countries">3</div>
+            <div class="stat-label">Negara / Kawasan</div>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon icon-city">📍</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-cities">11</div>
+            <div class="stat-label">Kota & Destinasi Dikunjungi</div>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon icon-local">📸</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-trips">11</div>
+            <div class="stat-label">Total Petualangan Tersimpan</div>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon icon-media">🎞️</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-media">11 Foto • 0 Video</div>
+            <div class="stat-label">Koleksi Media Visual</div>
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <!-- Controls Toolbar: Nav Tabs, Filters, & Search -->
+    <nav class="controls-toolbar" aria-label="Navigasi dan Filter Tampilan">
+      <div class="nav-tabs" role="tablist">
+        <!-- 📸 GALERI SCRAPBOOK AS DEFAULT ACTIVE TAB -->
+        <button class="nav-tab active" data-view="scrapbook" role="tab" id="tab-scrapbook">
+          <span>📸</span> Galeri Scrapbook
+        </button>
+        <button class="nav-tab" data-view="map" role="tab" id="tab-map">
+          <span>🗺️</span> Peta Petualangan
+        </button>
+        <button class="nav-tab" data-view="passport" role="tab" id="tab-passport">
+          <span>🛂</span> Paspor & Cap Resmi
+        </button>
+        <button class="nav-tab" data-view="timeline" role="tab" id="tab-timeline">
+          <span>⏳</span> Linimasa Waktu
+        </button>
+      </div>
+
+      <!-- Filter row: Semua, Negara, Kota, dan Favorit -->
+      <div class="filter-search-row">
+        <div class="filter-chips">
+          <button class="filter-chip active" data-filter="all">Semua</button>
+          <button class="filter-chip" data-filter="negara">✈️ Negara</button>
+          <button class="filter-chip" data-filter="kota">🏙️ Kota</button>
+          <button class="filter-chip" data-filter="favorite">❤️ Favorit</button>
+        </div>
+
+        <div class="search-bar-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" class="search-input"
+            placeholder="Cari negara, kota, teman jalan, atau cerita..." />
+        </div>
+      </div>
+    </nav>
+
+    <!-- MAIN VIEWS -->
+    <main>
+      <!-- =========================================================================
+           VIEW 1: Galeri Scrapbook (DEFAULT TAMPILAN AWAL)
+           ========================================================================= -->
+      <section id="view-scrapbook" class="view-panel active">
+        <div id="scrapbook-grid" class="scrapbook-grid">
+          <!-- Filled by app.js with polaroid cards showing [Nama Negara / Kota] -->
+        </div>
+      </section>
+
+      <!-- =========================================================================
+           VIEW 2: Peta Petualangan (Seluruh Peta dengan Indonesia 4 kota, Singapur 2 kota, Eropa 5 kota)
+           ========================================================================= -->
+      <section id="view-map" class="view-panel">
+        <!-- Quick Regional Pills Filter -->
+        <div class="country-pills-bar-wrapper">
+          <div class="pills-label">🗺️ Peta Wilayah:</div>
+          <div class="country-pills-bar" id="country-quick-filter-bar">
+            <!-- Filled by map.js: Seluruh Peta, Indonesia (4 Kota), Singapura (2 Kota), Eropa (5 Kota) -->
+          </div>
+        </div>
+
+        <!-- Whole Map Container -->
+        <div class="map-view-container">
+          <div class="map-header-bar">
+            <div class="map-header-info">
+              <h3>Seluruh Peta Sebaran Destinasi Dunia & Nusantara</h3>
+              <p>Menampilkan titik-titik perjalanan: Indonesia (4 Kota), Singapura (2 Kota), dan Eropa (5 Kota). Klik
+                titik pin untuk melihat foto/video!</p>
+            </div>
+            <div class="map-legend">
+              <span><span class="legend-dot legend-local"></span> Indonesia (4 Kota)</span>
+              <span><span class="legend-dot legend-city"></span> Singapura (2 Kota)</span>
+              <span><span class="legend-dot legend-intl"></span> Eropa (5 Kota)</span>
+            </div>
+          </div>
+          <div id="travel-map"></div>
+        </div>
+
+        <!-- Regional & Country Completeness Cards -->
+        <section class="country-completeness-section">
+          <div class="section-title-wrap">
+            <div class="section-badge">🌍 REKAPITULASI KELENGKAPAN KOTA</div>
+            <h2>Status Destinasi & Kota yang Sudah Dijelajahi</h2>
+            <p>Rincian kota-kota yang telah Anda kunjungi di Indonesia, Singapura, dan Eropa:</p>
+          </div>
+
+          <div class="country-cards-grid" id="country-completeness-cards">
+            <!-- Rendered dynamically by map.js -->
+          </div>
+        </section>
+      </section>
+
+      <!-- VIEW 3: Paspor & Cap Resmi -->
+      <section id="view-passport" class="view-panel">
+        <div id="passport-content">
+          <!-- Filled by app.js -->
+        </div>
+      </section>
+
+      <!-- VIEW 4: Linimasa Waktu -->
+      <section id="view-timeline" class="view-panel">
+        <div class="timeline-container" id="timeline-list">
+          <!-- Filled by app.js -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer with Backup / Reset Options -->
+    <footer class="app-footer">
+      <div>
+        <span>WanderMemories • Sahabat Setia Setiap Petualangan Anda</span>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <button id="btn-export-data" class="btn-card-action">💾 Cadangkan Data (.wander)</button>
+        <button class="btn-card-action" onclick="document.getElementById('import-file-input').click()">📥 Pulihkan
+          Data</button>
+        <input type="file" id="import-file-input" accept=".wander,.json" style="display: none;" />
+        <button class="btn-card-action" onclick="window.app.resetToDemo()">🔄 Reset Data Contoh</button>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 0: Location Media Gallery
+       ========================================================================== -->
+  <div id="location-gallery-modal" class="modal-overlay hidden">
+    <div class="modal-card location-modal-card">
+      <div class="modal-header location-modal-header">
+        <div>
+          <span class="location-badge" id="loc-gallery-badge">📍 Destinasi</span>
+          <h2 id="loc-gallery-title" class="location-main-title">🇮🇩 Bali, Indonesia</h2>
+          <p id="loc-gallery-subtitle" class="location-subtitle">Koleksi foto dan video perjalanan</p>
+        </div>
+        <button class="modal-close-btn" onclick="window.app.closeLocationGallery()">&times;</button>
+      </div>
+
+      <div class="loc-gallery-toolbar">
+        <div class="loc-filter-tabs">
+          <button class="loc-tab-btn active" data-filter="all" onclick="window.app.filterLocationGallery('all')">
+            Semua Media
+          </button>
+          <button class="loc-tab-btn" data-filter="photo" onclick="window.app.filterLocationGallery('photo')">
+            📷 Foto
+          </button>
+          <button class="loc-tab-btn" data-filter="video" onclick="window.app.filterLocationGallery('video')">
+            🎬 Video
+          </button>
+        </div>
+
+        <button id="btn-play-location-story" class="btn-primary" style="padding: 8px 18px; font-size: 0.85rem;">
+          <span>🎞️</span> Putar Story Destinasi Ini
+        </button>
+      </div>
+
+      <div class="loc-gallery-grid" id="loc-gallery-grid">
+        <!-- Rendered by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 1: Tambah / Edit Memori Petualangan
+       ========================================================================== -->
+  <div id="memory-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modal-form-title">Tambah Memori Petualangan Baru</h2>
+        <button class="modal-close-btn" onclick="window.app.closeAddModal()" title="Tutup">&times;</button>
+      </div>
+
+      <form id="memory-form" class="form-grid">
+        <div class="form-group">
+          <label>Unggah Foto atau Rekaman Video Perjalanan *</label>
+          <div id="media-dropzone" class="media-dropzone">
+            <div id="dropzone-prompt" class="dropzone-prompt">
+              <div class="dropzone-icon">📸🎬</div>
+              <h4>Klik atau Tarik (Drag & Drop) File ke Sini</h4>
+              <p>Mendukung foto (JPG, PNG, WebP) dan rekaman video (MP4, WebM, MOV)</p>
+            </div>
+            <div id="media-preview-container" class="media-preview-container hidden"></div>
+            <input type="file" id="media-file-input" accept="image/*,video/*" style="display: none;" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-title">Judul Memori yang Mengesankan *</label>
+          <input type="text" id="form-title" required placeholder="Contoh: Menikmati Senja di Danau Zurich" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-category">Kategori *</label>
+            <select id="form-category" required>
+              <option value="negara">✈️ Negara (Internasional)</option>
+              <option value="kota">🏙️ Kota (Domestik)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="form-country">Negara / Wilayah *</label>
+            <input type="text" id="form-country" required placeholder="Contoh: Indonesia, Singapura, Swiss, Prancis" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-city">Kota / Destinasi *</label>
+            <input type="text" id="form-city" required placeholder="Contoh: Bali, Marina Bay, Paris, Zurich" />
+          </div>
+          <div class="form-group">
+            <label for="form-spot">Spot Spesifik / Landmark</label>
+            <input type="text" id="form-spot" placeholder="Contoh: Merlion Park, Tegallalang, Eiffel Tower" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-date">Tanggal Kunjungan *</label>
+            <input type="date" id="form-date" required />
+          </div>
+          <div class="form-group">
+            <label for="form-season">Musim / Waktu Kunjungan</label>
+            <input type="text" id="form-season" placeholder="Contoh: Musim Semi, Liburan Lebaran, Weekend" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-companions">Teman Perjalanan</label>
+            <select id="form-companions">
+              <option value="Solo Trip">🎒 Solo Trip (Sendiri)</option>
+              <option value="Pasangan">💑 Bersama Pasangan</option>
+              <option value="Keluarga">👨‍👩‍👧‍👦 Keluarga Tercinta</option>
+              <option value="Geng Sahabat">🥳 Geng Sahabat</option>
+              <option value="Rombongan">🚌 Rombongan / Tour</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="form-mood">Suasana & Mood Perjalanan</label>
+            <select id="form-mood">
+              <option value="Damai & Takjub">✨ Damai & Takjub</option>
+              <option value="Petualangan & Adrenalin">⚡ Petualangan & Adrenalin</option>
+              <option value="Romantis & Hangat">🌹 Romantis & Hangat</option>
+              <option value="Healing & Menenangkan">🌿 Healing & Menenangkan</option>
+              <option value="Budaya & Santai">🏮 Budaya & Santai</option>
+              <option value="Kuliner Nikmat">🍜 Kuliner Nikmat</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Tingkat Keistimewaan Memori</label>
+          <div class="star-picker" id="form-star-picker">
+            <span class="star active" data-value="1">★</span>
+            <span class="star active" data-value="2">★</span>
+            <span class="star active" data-value="3">★</span>
+            <span class="star active" data-value="4">★</span>
+            <span class="star active" data-value="5">★</span>
+          </div>
+          <input type="hidden" id="form-rating" value="5" />
+        </div>
+
+        <div class="form-group">
+          <label>Tandai Lokasi pada Peta (Klik / Geser Pin)</label>
+          <div id="picker-map"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-notes">Cerita & Catatan Memorable *</label>
+          <textarea id="form-notes" rows="4" required
+            placeholder="Tuliskan cerita tak terlupakan, aroma udara, rasa makanan, atau kejadian seru di sana..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-highlights">Momen Highlight (1 per baris)</label>
+            <textarea id="form-highlights" rows="3"
+              placeholder="Sunrise spektakuler&#10;Mencoba kuliner khas lokal"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="form-cost">Estimasi Biaya / Info Menarik</label>
+            <input type="text" id="form-cost" placeholder="Contoh: Rp 1.500.000 / hari atau € 120" />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="window.app.closeAddModal()">Batal</button>
+          <button type="submit" class="btn-primary">
+            <span>💾</span> Simpan Kenangan Indah
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: Detail Memori Visual (Full Photo/Video Viewer)
+       ========================================================================== -->
+  <div id="detail-modal" class="modal-overlay hidden">
+    <div class="modal-card detail-modal-card">
+      <div class="detail-media-container" id="detail-media-container"></div>
+      <div class="detail-body">
+        <div class="detail-header-meta">
+          <div>
+            <span id="detail-category" class="detail-badge">Kategori</span>
+            <h2 id="detail-title" class="detail-title" style="margin-top: 6px;">Judul Memori</h2>
+          </div>
+          <button class="modal-close-btn" onclick="window.app.closeDetailModal()">&times;</button>
+        </div>
+
+        <div class="detail-tags-row">
+          <span id="detail-location">📍 Lokasi</span>
+          <span id="detail-date">📅 Tanggal</span>
+          <span id="detail-companions">👥 Teman Jalan</span>
+          <span id="detail-mood">✨ Mood</span>
+          <span id="detail-rating" style="color: #f59e0b; font-size: 1.05rem;">★★★★★</span>
+          <span id="detail-cost" class="hidden">💰 Biaya</span>
+        </div>
+
+        <p id="detail-notes" class="detail-notes"></p>
+
+        <div id="detail-highlights-wrap" class="detail-highlights-wrap hidden">
+          <h5>✨ Highlight Petualangan Terfavorit:</h5>
+          <ul id="detail-highlights"></ul>
+        </div>
+
+        <div class="detail-actions-bar">
+          <div style="display: flex; gap: 8px;">
+            <button id="detail-fav-btn" class="btn-card-action">❤️ Favorit</button>
+            <button id="detail-postcard-btn" class="btn-card-action">💌 Cetak Kartu Pos</button>
+            <button id="detail-story-btn" class="btn-card-action">🎞️ Tonton Story</button>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="detail-edit-btn" class="btn-secondary" style="padding: 8px 16px;">✏️ Edit</button>
+            <button id="detail-delete-btn" class="btn-secondary"
+              style="padding: 8px 16px; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">🗑️ Hapus</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: Cinematic Stories Presentation Mode (Fullscreen Showcase)
+       ========================================================================== -->
+  <div id="story-modal" class="story-fullscreen-modal hidden">
+    <div class="story-progress-container" id="story-progress-bars"></div>
+    <div class="story-top-controls">
+      <div class="story-brand">
+        <span>✨ WanderMemories Showcase</span>
+      </div>
+      <div class="story-btn-group">
+        <button class="story-control-btn" id="story-sound-toggle" onclick="window.soundEngine.toggleAmbient()"
+          title="Nyalakan Musik">
+          🎵
+        </button>
+        <button class="story-control-btn" onclick="window.storyShowcase.togglePause()" title="Jeda / Lanjutkan (P)">
+          ⏯️
+        </button>
+        <button class="story-control-btn" onclick="window.storyShowcase.close()" title="Tutup Layar Penuh (Esc)">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <div class="story-viewport">
+      <div class="story-tap-zone tap-left" onclick="window.storyShowcase.prev()" title="Kembali (Panah Kiri)"></div>
+      <div class="story-tap-zone tap-right" onclick="window.storyShowcase.next()"
+        title="Berikutnya (Panah Kanan / Spasi)"></div>
+      <div class="story-media-container" id="story-media-container"></div>
+    </div>
+
+    <div class="story-caption-card">
+      <div class="story-meta-tags">
+        <span class="story-badge" id="story-badge">Destinasi</span>
+        <span class="story-location" id="story-location">Lokasi</span>
+        <span class="story-location" id="story-date">Tanggal</span>
+        <span class="story-location" id="story-mood">Mood</span>
+        <span class="story-location" id="story-companions">Teman</span>
+      </div>
+      <h2 class="story-title" id="story-title">Judul Petualangan</h2>
+      <p class="story-notes" id="story-notes"></p>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: Digital Postcard Studio
+       ========================================================================== -->
+  <div id="postcard-modal" class="modal-overlay hidden">
+    <div class="modal-card postcard-modal-card">
+      <div class="modal-header">
+        <h2>💌 Studio Kartu Pos Kenangan Digital</h2>
+        <button class="modal-close-btn" onclick="window.postcardStudio.close()">&times;</button>
+      </div>
+
+      <div class="postcard-canvas-wrapper">
+        <canvas id="postcard-canvas"></canvas>
+      </div>
+
+      <div class="postcard-controls-row">
+        <div class="form-group">
+          <label>Penerima Kartu Pos</label>
+          <input type="text" id="postcard-recipient" placeholder="Contoh: Sahabatku di Jakarta / Orang Tua Tersayang"
+            oninput="window.postcardStudio.render()" />
+        </div>
+        <div class="form-group">
+          <label>Pesan Singkat Tulisan Tangan</label>
+          <input type="text" id="postcard-custom-message" placeholder="Tuliskan pesan kesan hangatmu..."
+            oninput="window.postcardStudio.render()" />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="window.postcardStudio.close()">Tutup</button>
+        <button type="button" class="btn-primary" onclick="window.postcardStudio.download()">
+          <span>📥</span> Unduh Kartu Pos (Gambar PNG)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JavaScript CDN -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Application Modules -->
+  <script src="js/db.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/story.js"></script>
+  <script src="js/postcard.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
